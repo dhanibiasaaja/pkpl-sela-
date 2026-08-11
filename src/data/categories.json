@@ -1,0 +1,32 @@
+[
+  {
+    "id": "c_elektronik_u_admin_gudang",
+    "userId": "u_admin_gudang",
+    "code": "KAT-ELEK",
+    "name": "Elektronik",
+    "location": "Gudang Elektronik - Rak E-01",
+    "manager": "Administrator Gudang",
+    "capacity": 500,
+    "color": "#2563eb"
+  },
+  {
+    "id": "c_elektronik_u_1786382729362_ou0cf",
+    "userId": "u_1786382729362_ou0cf",
+    "code": "KAT-ELEK",
+    "name": "Elektronik",
+    "location": "Gudang Elektronik - Rak E-01",
+    "manager": "Budi Pratama",
+    "capacity": 500,
+    "color": "#2563eb"
+  },
+  {
+    "id": "c_elektronik_u_1786459319127_c9i0i",
+    "userId": "u_1786459319127_c9i0i",
+    "code": "KAT-ELEK",
+    "name": "Elektronik",
+    "location": "Gudang Elektronik - Rak E-01",
+    "manager": "Staf Gudang",
+    "capacity": 500,
+    "color": "#2563eb"
+  }
+]

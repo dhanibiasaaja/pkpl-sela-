@@ -1,0 +1,26 @@
+{
+  "name": "inventaris-gudang-app",
+  "version": "1.0.0",
+  "description": "Sistem Inventarisasi Stok Gudang & Manajemen Barang Fullstack Node.js + Express",
+  "main": "inventory-server.js",
+  "scripts": {
+    "start": "node inventory-server.js",
+    "dev": "node inventory-server.js"
+  },
+  "keywords": [
+    "inventaris",
+    "gudang",
+    "stok",
+    "barang",
+    "express",
+    "json-db"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

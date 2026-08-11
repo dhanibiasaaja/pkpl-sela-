@@ -1,0 +1,29 @@
+[
+  {
+    "id": "u_admin_gudang",
+    "name": "Administrator Gudang",
+    "email": "admin@gudang.com",
+    "password": "$2a$10$n46SpJO7Lg921IuY8Hlch./.AHjs8o1I2ivV6Zh4i0Sdz7EDgYRAa",
+    "warehouseName": "Gudang Utama",
+    "role": "Manager Gudang",
+    "createdAt": "2026-08-11T00:00:00.000Z"
+  },
+  {
+    "id": "u_1786382729362_ou0cf",
+    "name": "Budi Pratama",
+    "email": "budi@gmail.com",
+    "password": "$2a$10$n46SpJO7Lg921IuY8Hlch./.AHjs8o1I2ivV6Zh4i0Sdz7EDgYRAa",
+    "warehouseName": "Gudang Utama",
+    "role": "Kepala Operasional",
+    "createdAt": "2026-08-10T17:25:29.362Z"
+  },
+  {
+    "id": "u_1786459319127_c9i0i",
+    "name": "rama",
+    "email": "rama96647@gmail.com",
+    "password": "$2a$10$X3gukuyOERrLD0yO2q0I1eUqsPp8OhgJugNoGmGmXtfvk52LUdgq2",
+    "warehouseName": "Gudang Utama",
+    "role": "Staf Operasional Gudang",
+    "createdAt": "2026-08-11T14:41:59.127Z"
+  }
+]

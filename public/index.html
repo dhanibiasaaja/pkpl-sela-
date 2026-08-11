@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gudang Inventaris - Sistem Manajemen Stok</title>
+  <meta name="description" content="Sistem Manajemen Gudang & Inventaris Stok.">
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link rel="stylesheet" href="/css/inventory-style.css">
+</head>
+
+<body>
+
+  <div id="auth-overlay" class="auth-wrapper">
+    <div class="auth-card-clean">
+      <div class="auth-brand-clean">
+        <h2 style="font-size: 22px; font-weight: 800;">Gudang Inventaris</h2>
+        <p style="color: var(--text-secondary); font-size: 12.5px; margin-top: 2px;">Sistem Manajemen Stok</p>
+      </div>
+
+      <div class="auth-tabs-clean">
+        <button type="button" class="auth-tab-clean active" id="tab-login" onclick="switchAuthTab('login')">Masuk Staf</button>
+        <button type="button" class="auth-tab-clean" id="tab-register" onclick="switchAuthTab('register')">Daftar Gudang</button>
+      </div>
+
+      
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="login-email">Email Staf</label>
+          <input type="email" id="login-email" class="form-control" placeholder="admin@gudang.com" required value="budi@gmail.com">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div style="position: relative;">
+            <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+            <i class="fa-regular fa-eye" id="toggle-pwd-btn"
+              onclick="togglePasswordVisibility('login-password', 'toggle-pwd-btn')"
+              style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; font-size: 13px;"></i>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 9px; margin-top: 6px;">
+          Masuk
+        </button>
+       
+      </form>
+
+      
+      <form id="form-register" onsubmit="handleRegister(event)" style="display: none;">
+        <div class="form-group">
+          <label for="reg-name">Nama Staf</label>
+          <input type="text" id="reg-name" class="form-control" placeholder="Budi Pratama" required>
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Email Staf</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="budi@gudang.com" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reg-warehouse">Gudang</label>
+            <input type="text" id="reg-warehouse" class="form-control" placeholder="Gudang Utama">
+          </div>
+          <div class="form-group">
+            <label for="reg-role">Role</label>
+            <input type="text" id="reg-role" class="form-control" placeholder="Manager">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <input type="password" id="reg-password" class="form-control" placeholder="Minimal 6 karakter" required>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 9px; margin-top: 6px;">
+          Daftarkan Akun
+        </button>
+      </form>
+    </div>
+  </div>
+
+  
+  <div id="app-container" class="topbar-app-layout">
+
+    
+    <header class="top-command-bar">
+      <div class="top-brand">
+        <h2>Gudang Inventaris</h2>
+      </div>
+
+      
+      <nav class="top-nav-tabs">
+        <button class="nav-tab-item active" onclick="switchView('dashboard')" id="nav-dashboard">Dashboard</button>
+        <button class="nav-tab-item" onclick="switchView('inventory')" id="nav-inventory">
+          Inventaris <span class="nav-badge" id="badge-alert-count" style="display: none;">0</span>
+        </button>
+        <button class="nav-tab-item" onclick="switchView('categories')" id="nav-categories">Kategori</button>
+        <button class="nav-tab-item" onclick="switchView('logs')" id="nav-logs">Mutasi</button>
+        <button class="nav-tab-item" onclick="switchView('settings')" id="nav-settings">Pengaturan</button>
+      </nav>
+
+      
+      <div class="top-right-tools">
+        <div class="nav-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="global-search-input" placeholder="Cari SKU / barang..." oninput="handleGlobalSearch(this.value)">
+        </div>
+
+        <button class="btn-icon" onclick="toggleTheme()" title="Mode Gelap/Terang">
+          <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+
+        <div class="user-quick-chip" onclick="switchView('settings')">
+          <div id="user-avatar-circle" class="user-avatar-circle">SG</div>
+          <span id="nav-user-name">Staf</span>
+        </div>
+      </div>
+    </header>
+
+    
+    <main class="view-container">
+
+      
+      <section id="view-dashboard" class="page-view active">
+        <div class="page-header">
+          <div>
+            <h1>Dashboard Gudang Inventaris</h1>
+            <p>Ringkasan stok barang, lokasi rak, dan mutasi barang masuk/keluar.</p>
+          </div>
+
+          <div class="page-header-actions">
+            <button class="btn-success-act" onclick="openQuickAdjustModal('IN')">
+              + Barang Masuk
+            </button>
+            <button class="btn-danger-act" onclick="openQuickAdjustModal('OUT')">
+              - Barang Keluar
+            </button>
+            <button class="btn-primary" onclick="openItemModal()">
+              + Item Baru
+            </button>
+          </div>
+        </div>
+
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3 id="stat-total-items">0</h3>
+              <p>Total Jenis Barang (SKU)</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3 id="stat-total-units">0</h3>
+              <p>Total Unit Stok</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3 id="stat-alert-items">0</h3>
+              <p>Stok Menipis & Habis</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3 id="stat-total-value">Rp 0</h3>
+              <p>Estimasi Nilai Inventaris</p>
+            </div>
+          </div>
+        </div>
+
+        
+        <div class="dash-layout-grid">
+          
+          
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <div class="dash-card-title">Peringatan Restock</div>
+              <button class="btn-text" onclick="switchView('inventory')">Lihat Semua</button>
+            </div>
+            <div id="dash-stock-alerts-list" class="alert-list-container">
+              
+            </div>
+          </div>
+
+          
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <div class="dash-card-title">Kapasitas Rak</div>
+              <button class="btn-text" onclick="switchView('categories')">Kelola Rak</button>
+            </div>
+            <div id="dash-rack-capacity-list" class="rack-list-container">
+              
+            </div>
+          </div>
+
+        </div>
+
+        
+        <div class="dash-card" style="margin-top: 16px;">
+          <div class="dash-card-header">
+            <div class="dash-card-title">Mutasi Terakhir</div>
+            <button class="btn-text" onclick="switchView('logs')">Selengkapnya</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Tipe</th>
+                  <th>SKU & Barang</th>
+                  <th>Jumlah</th>
+                  <th>Perubahan</th>
+                  <th>Catatan</th>
+                </tr>
+              </thead>
+              <tbody id="dash-recent-logs-tbody">
+                
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      
+      <section id="view-inventory" class="page-view">
+        <div class="page-header">
+          <div>
+            <h1>Stok & Inventaris Barang</h1>
+            <p>Daftar stok barang, lokasi rak, dan batas minimum stok.</p>
+          </div>
+          
+          <div class="page-header-actions">
+            <div class="view-toggle-btns">
+              <button class="btn-icon active" id="btn-toggle-table" onclick="setInventoryViewMode('table')" title="Tabel">
+                <i class="fa-solid fa-list"></i>
+              </button>
+              <button class="btn-icon" id="btn-toggle-cards" onclick="setInventoryViewMode('cards')" title="Cards">
+                <i class="fa-solid fa-border-all"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        
+        <div class="inventory-toolbar-v2">
+          <div class="toolbar-action-group">
+            <button class="btn-primary" onclick="openItemModal()">+ Tambah Barang</button>
+            <button class="btn-success-act" onclick="openQuickAdjustModal('IN')">+ Barang Masuk</button>
+            <button class="btn-danger-act" onclick="openQuickAdjustModal('OUT')">- Barang Keluar</button>
+          </div>
+
+          <div class="filter-group">
+            <input type="text" id="inv-search-input" class="form-control" placeholder="Cari barang..." style="width: 180px;" oninput="renderInventory()">
+
+            <select id="inv-filter-category" class="form-select" onchange="renderInventory()">
+              <option value="ALL">Semua Kategori</option>
+            </select>
+
+            <select id="inv-filter-status" class="form-select" onchange="renderInventory()">
+              <option value="ALL">Semua Status</option>
+              <option value="Tersedia">Tersedia</option>
+              <option value="Stok Menipis">Stok Menipis</option>
+              <option value="Habis">Habis</option>
+            </select>
+          </div>
+        </div>
+
+        
+        <div id="inv-table-container" class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 150px;">Aksi Mutasi</th>
+                <th>SKU</th>
+                <th>Nama Barang</th>
+                <th>Kategori & Rak</th>
+                <th>Stok</th>
+                <th>Min. Stok</th>
+                <th>Status</th>
+                <th>Harga Unit</th>
+                <th style="text-align: right;">Kelola</th>
+              </tr>
+            </thead>
+            <tbody id="inv-tbody">
+              
+            </tbody>
+          </table>
+        </div>
+
+        
+        <div id="inv-cards-container" class="cards-grid" style="display: none;">
+          
+        </div>
+      </section>
+
+      
+      <section id="view-categories" class="page-view">
+        <div class="page-header">
+          <div>
+            <h1>Kategori & Rak Storage</h1>
+            <p>Lokasi penyimpanan dan kapasitas rak.</p>
+          </div>
+          <button class="btn-primary" onclick="openCategoryModal()">+ Tambah Kategori</button>
+        </div>
+
+        <div class="categories-grid" id="categories-grid-container">
+          
+        </div>
+      </section>
+
+      <!-- VIEW: LOGS -->
+      <section id="view-logs" class="page-view">
+        <div class="page-header">
+          <div>
+            <h1>Riwayat Mutasi Stok</h1>
+            <p>Catatan transaksi barang masuk dan barang keluar.</p>
+          </div>
+          <select id="logs-filter-type" class="form-select" onchange="renderLogs()">
+            <option value="ALL">Semua Transaksi</option>
+            <option value="IN">Barang Masuk (IN)</option>
+            <option value="OUT">Barang Keluar (OUT)</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Tipe</th>
+                <th>SKU</th>
+                <th>Nama Barang</th>
+                <th>Jumlah</th>
+                <th>Stok Awal ➔ Akhir</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody id="logs-tbody">
+              
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      
+      <section id="view-settings" class="page-view">
+        <div class="page-header">
+          <div>
+            <h1>Pengaturan Gudang</h1>
+            <p>Profil staf gudang dan reset data.</p>
+          </div>
+        </div>
+
+        <div class="settings-card-grid">
+          <div class="dash-card">
+            <h3 style="margin-bottom: 14px;">Profil Staf Gudang</h3>
+            <div class="profile-info-grid">
+              <div>
+                <label class="info-label">Nama Staf</label>
+                <div class="info-val" id="profile-name">-</div>
+              </div>
+              <div>
+                <label class="info-label">Email</label>
+                <div class="info-val" id="profile-email">-</div>
+              </div>
+              <div>
+                <label class="info-label">Gudang</label>
+                <div class="info-val" id="profile-warehouse">-</div>
+              </div>
+              <div>
+                <label class="info-label">Role</label>
+                <div class="info-val" id="profile-role">-</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <h3 style="margin-bottom: 10px;">Tindakan Sesi</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
+              Keluar dari akun atau reset data inventaris.
+            </p>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-danger" onclick="handleLogout()">Keluar (Logout)</button>
+              <button class="btn-secondary" onclick="handleResetDemoData()">Reset Data</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+ 
+  <div id="modal-item" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-item-title">Tambah Barang Inventaris</h3>
+        <button class="btn-icon" onclick="closeModal('modal-item')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-item" onsubmit="handleSaveItem(event)">
+        <input type="hidden" id="item-id-hidden">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="item-sku">SKU / Kode *</label>
+            <input type="text" id="item-sku" class="form-control" placeholder="SKU-001">
+          </div>
+          <div class="form-group">
+            <label for="item-category">Kategori & Rak *</label>
+            <select id="item-category" class="form-select" onchange="toggleInlineCategoryInput(this.value)">
+              <!-- Dynamic categories -->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" id="group-inline-new-cat" style="display: none;">
+          <label for="item-new-cat-name">+ Nama Kategori Baru</label>
+          <input type="text" id="item-new-cat-name" class="form-control" placeholder="Contoh: Elektronik">
+        </div>
+
+        <div class="form-group">
+          <label for="item-name">Nama Barang *</label>
+          <input type="text" id="item-name" class="form-control" placeholder="Sensor Suhu Pro" required>
+        </div>
+
+        <div class="form-group">
+          <label for="item-description">Deskripsi</label>
+          <textarea id="item-description" class="form-control" rows="2" placeholder="Spesifikasi..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="item-quantity">Stok Awal *</label>
+            <input type="number" id="item-quantity" class="form-control" min="0" value="10" required>
+          </div>
+          <div class="form-group">
+            <label for="item-min-stock">Min. Stok Alert *</label>
+            <input type="number" id="item-min-stock" class="form-control" min="1" value="5" required>
+          </div>
+          <div class="form-group">
+            <label for="item-unit">Satuan</label>
+            <select id="item-unit" class="form-select">
+              <option value="Pcs">Pcs</option>
+              <option value="Unit">Unit</option>
+              <option value="Box">Box</option>
+              <option value="Kg">Kg</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="item-price">Harga (Rp)</label>
+            <input type="number" id="item-price" class="form-control" min="0" placeholder="150000">
+          </div>
+          <div class="form-group">
+            <label for="item-supplier">Supplier</label>
+            <input type="text" id="item-supplier" class="form-control" placeholder="PT Elektronika">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary" style="flex:1;">Simpan Barang</button>
+          <button type="button" class="btn-secondary" onclick="closeModal('modal-item')">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  
+  <div id="modal-stock-adjust" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-adjust-title">Penyesuaian Stok</h3>
+        <button class="btn-icon" onclick="closeModal('modal-stock-adjust')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-stock-adjust" onsubmit="handleSaveStockAdjustment(event)">
+        <input type="hidden" id="adjust-item-id">
+        <input type="hidden" id="adjust-type" value="IN">
+
+        <div class="stock-adjust-banner" id="adjust-item-banner">
+          <h4 id="adjust-item-name">Nama Barang</h4>
+          <p id="adjust-item-info">SKU: - | Stok: 0</p>
+        </div>
+
+        <div class="form-group">
+          <label for="adjust-amount">Jumlah Unit *</label>
+          <input type="number" id="adjust-amount" class="form-control" min="1" placeholder="Jumlah unit" required>
+        </div>
+
+        <div class="form-group">
+          <label for="adjust-notes">Catatan</label>
+          <textarea id="adjust-notes" class="form-control" rows="2" placeholder="Restock pengiriman..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary" id="btn-submit-adjust" style="flex:1;">Proses</button>
+          <button type="button" class="btn-secondary" onclick="closeModal('modal-stock-adjust')">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CATEGORY -->
+  <div id="modal-category" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-cat-title">Tambah Kategori & Rak</h3>
+        <button class="btn-icon" onclick="closeModal('modal-category')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-category" onsubmit="handleSaveCategory(event)">
+        <input type="hidden" id="cat-id-hidden">
+
+        <div class="form-group">
+          <label for="cat-code">Kode Kategori *</label>
+          <input type="text" id="cat-code" class="form-control" placeholder="KAT-ELEK" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cat-name">Nama Kategori *</label>
+          <input type="text" id="cat-name" class="form-control" placeholder="Elektronik" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cat-location">Lokasi Rak *</label>
+          <input type="text" id="cat-location" class="form-control" placeholder="Rak A-01" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cat-manager">PJ Rak</label>
+            <input type="text" id="cat-manager" class="form-control" placeholder="Staf Utama">
+          </div>
+          <div class="form-group">
+            <label for="cat-capacity">Kapasitas Rak</label>
+            <input type="number" id="cat-capacity" class="form-control" min="10" value="500">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn-primary" style="flex:1;">Simpan Kategori</button>
+          <button type="button" class="btn-secondary" onclick="closeModal('modal-category')">Batal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/js/inventory-app.js"></script>
+</body>
+
+</html>
